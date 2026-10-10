@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { X, Sparkles, Database, Check } from 'lucide-react';
 import { SupabaseConfig } from '../services/supabase';
 import { AISettings } from '../services/aiService';
 
@@ -33,39 +34,42 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 font-mono">
-      <div className="bg-white border-2 border-black w-full max-w-lg p-6 space-y-5">
-        <div className="flex justify-between items-center border-b border-black pb-2">
-          <h3 className="font-bold text-base">系統設定 (AI 與雲端)</h3>
-          <button onClick={onClose} className="px-2 py-0.5 border border-black hover:bg-black hover:text-white">
-            關閉
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div className="liquid-glass rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-5 shadow-2xl border border-white/60">
+        <div className="flex justify-between items-center pb-2 border-b border-black/5">
+          <h3 className="font-black text-lg text-[#0a192f]">系統設定 (AI 與雲端)</h3>
+          <button onClick={onClose} className="p-1 rounded-xl hover:bg-black/5 text-slate-400">
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* AI 節省模式設定 */}
         <div className="space-y-3">
-          <div className="font-bold text-sm">Google Gemini AI 設定 (已開啟節省模式)</div>
-          <p className="text-xs text-neutral-500">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#0a192f]" />
+            <span className="font-bold text-sm text-[#0a192f]">Google Gemini AI 設定 (已啟用節省模式)</span>
+          </div>
+          <p className="text-xs text-slate-500">
             * 系統已鎖定低溫與嚴格 token 輸出，極度節省額度。選擇題與多篇長文均使用此 API。
           </p>
 
           <div>
-            <label className="block text-xs mb-1">Gemini API Key</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">Gemini API Key</label>
             <input
               type="password"
               value={aiKey}
               onChange={(e) => setAiKey(e.target.value)}
               placeholder="貼入 AIzaSy..."
-              className="w-full px-3 py-1.5 border border-black text-xs"
+              className="liquid-glass w-full px-4 py-2.5 rounded-xl text-xs text-[#0a192f] font-mono focus:outline-none focus:ring-2 focus:ring-[#0a192f]/20"
             />
           </div>
 
           <div>
-            <label className="block text-xs mb-1">模型選擇</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">模型選擇</label>
             <select
               value={aiModel}
               onChange={(e) => setAiModel(e.target.value)}
-              className="w-full px-3 py-1.5 border border-black text-xs bg-white"
+              className="liquid-glass w-full px-4 py-2.5 rounded-xl text-xs text-[#0a192f] font-semibold focus:outline-none focus:ring-2 focus:ring-[#0a192f]/20 bg-white/60"
             >
               <option value="gemini-2.0-flash">Gemini 2.0 Flash (推薦，極速省 token)</option>
               <option value="gemini-1.5-flash-latest">Gemini 1.5 Flash Latest</option>
@@ -74,45 +78,49 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        <hr className="border-black" />
+        <hr className="border-black/5" />
 
         {/* Supabase 雲端設定 */}
         <div className="space-y-3">
-          <div className="font-bold text-sm">Supabase 題庫資料庫 (可選)</div>
+          <div className="flex items-center gap-2">
+            <Database className="w-4 h-4 text-[#0a192f]" />
+            <span className="font-bold text-sm text-[#0a192f]">Supabase 題庫資料庫 (可選)</span>
+          </div>
           <div>
-            <label className="block text-xs mb-1">Project URL</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">Project URL</label>
             <input
               type="text"
               value={sbUrl}
               onChange={(e) => setSbUrl(e.target.value)}
               placeholder="https://xxx.supabase.co"
-              className="w-full px-3 py-1.5 border border-black text-xs"
+              className="liquid-glass w-full px-4 py-2.5 rounded-xl text-xs text-[#0a192f] focus:outline-none focus:ring-2 focus:ring-[#0a192f]/20"
             />
           </div>
           <div>
-            <label className="block text-xs mb-1">Anon Key</label>
+            <label className="block text-xs font-semibold text-slate-600 mb-1">Anon Key</label>
             <input
               type="password"
               value={sbAnonKey}
               onChange={(e) => setSbAnonKey(e.target.value)}
               placeholder="eyJh..."
-              className="w-full px-3 py-1.5 border border-black text-xs"
+              className="liquid-glass w-full px-4 py-2.5 rounded-xl text-xs text-[#0a192f] font-mono focus:outline-none focus:ring-2 focus:ring-[#0a192f]/20"
             />
           </div>
         </div>
 
-        <div className="flex justify-end space-x-2 pt-2 border-t border-black">
+        <div className="flex justify-end gap-2 pt-3 border-t border-black/5">
           <button
             onClick={onClose}
-            className="px-4 py-1.5 border border-black hover:bg-neutral-100 text-xs"
+            className="px-5 py-2.5 rounded-xl liquid-glass text-xs font-bold text-slate-600"
           >
             取消
           </button>
           <button
             onClick={handleSave}
-            className="px-6 py-1.5 border border-black font-bold bg-black text-white hover:bg-neutral-800 text-xs"
+            className="inline-flex items-center gap-1.5 px-6 py-2.5 rounded-xl bg-[#0a192f] hover:bg-[#132c5b] text-white font-bold text-xs shadow-md transition transform hover:-translate-y-0.5"
           >
-            保存設定
+            <Check className="w-3.5 h-3.5" />
+            <span>保存設定</span>
           </button>
         </div>
       </div>

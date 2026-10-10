@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Flame, Layers, BookOpen, CheckCircle, Award, Plus, Globe } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { FlashcardView } from './components/FlashcardView';
 import { HybridQuiz } from './components/HybridQuiz';
@@ -39,13 +40,11 @@ export function App() {
     return saved ? JSON.parse(saved) : { apiKey: '', model: 'gemini-2.0-flash' };
   });
 
-  // 選擇填空合一題目狀態
   const [hybridQuestions, setHybridQuestions] = useState<HybridQuizQuestion[]>(() =>
     generateLocalHybridQuestions(deck.cards, 8)
   );
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false);
 
-  // 重新載入題庫
   const handleUpdateDeck = (newDeck: Deck) => {
     setDeck(newDeck);
     localStorage.setItem('context_quiz_deck', JSON.stringify(newDeck));
@@ -59,7 +58,6 @@ export function App() {
     handleUpdateDeck({ ...deck, cards: updatedCards });
   };
 
-  // 重新生成選擇填空題（若有 AI Key 則使用 AI 節省模式生成情境句子與選項）
   const handleRestartQuiz = async () => {
     if (aiSettings.apiKey.trim()) {
       setIsLoadingQuiz(true);
@@ -107,8 +105,18 @@ export function App() {
     }
   }, []);
 
+  const masteredCount = deck.cards.filter((c) => c.mastered).length;
+
   return (
-    <div className="min-h-screen bg-white text-black font-sans flex flex-col">
+    <div className="min-h-screen bg-slate-50 text-black flex flex-col selection:bg-slate-200 selection:text-black relative">
+      {/* 4 顆彩色毛玻璃環境光光暈 (Vocabulum 標誌性光效) */}
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute -top-24 -left-24 w-[28rem] h-[28rem] rounded-full bg-sky-200/45 blur-3xl"></div>
+        <div className="absolute top-1/4 -right-24 w-96 h-96 rounded-full bg-indigo-200/40 blur-3xl"></div>
+        <div className="absolute bottom-10 left-1/3 w-80 h-80 rounded-full bg-emerald-100/45 blur-3xl"></div>
+        <div className="absolute top-2/3 left-10 w-64 h-64 rounded-full bg-violet-100/35 blur-3xl"></div>
+      </div>
+
       <Navbar
         currentMode={mode}
         onSelectMode={(m) => {
@@ -122,40 +130,110 @@ export function App() {
         cardCount={deck.cards.length}
       />
 
-      {/* 標題列 */}
-      <div className="max-w-5xl mx-auto px-4 py-4 w-full flex items-center justify-between border-b border-neutral-200">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight">{deck.title}</h1>
-          <p className="text-xs text-neutral-500 font-mono mt-0.5">{deck.description}</p>
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Vocabulum 主橫幅 Header Banner */}
+        <div className="liquid-glass liquid-glass-hover rounded-3xl p-6 sm:p-10 shadow-lg border border-white/60">
+          <div className="max-w-2xl space-y-4">
+            <h1 className="text-3xl sm:text-5xl text-[#0a192f] tracking-tight leading-tight font-black">
+              {deck.title}
+            </h1>
+            <p className="text-slate-600 text-sm sm:text-base font-medium">
+              {deck.description || '精心編排的雙語語境單字庫，結合 3D 翻卡、AI 篇章克漏字與即時評測。'}
+            </p>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <button
+                onClick={() => setMode('deck-editor')}
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#0a192f] hover:bg-[#132c5b] text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5"
+              >
+                <Plus className="w-4 h-4 text-white" />
+                <span>Add words / 編輯單字</span>
+              </button>
+              <button
+                onClick={() => setIsShareOpen(true)}
+                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-2xl liquid-glass liquid-glass-hover text-[#0a192f] font-bold text-sm shadow-md transition transform hover:-translate-y-0.5"
+              >
+                <Globe className="w-4 h-4 text-[#0a192f]" />
+                <span>Share deck / 分享題庫</span>
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="text-xs font-mono text-neutral-500">
-          已掌握：{deck.cards.filter((c) => c.mastered).length} / {deck.cards.length}
+
+        {/* 5 欄數據統計卡片 (Vocabulum 統計區塊) */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+          <div className="liquid-glass liquid-glass-hover p-5 rounded-2xl space-y-1 shadow-sm">
+            <div className="flex items-center justify-between text-slate-600">
+              <span className="text-xs font-bold">Daily Streak</span>
+              <Flame className="w-4 h-4 text-amber-500" />
+            </div>
+            <span className="text-2xl sm:text-3xl font-black text-[#0a192f]">1</span>
+          </div>
+
+          <div className="liquid-glass liquid-glass-hover p-5 rounded-2xl space-y-1 shadow-sm">
+            <div className="flex items-center justify-between text-slate-600">
+              <span className="text-xs font-bold">Total decks</span>
+              <Layers className="w-4 h-4 text-[#0a192f]" />
+            </div>
+            <span className="text-2xl sm:text-3xl font-black text-[#0a192f]">1</span>
+          </div>
+
+          <div className="liquid-glass liquid-glass-hover p-5 rounded-2xl space-y-1 shadow-sm">
+            <div className="flex items-center justify-between text-slate-600">
+              <span className="text-xs font-bold">Total words</span>
+              <BookOpen className="w-4 h-4 text-[#0a192f]" />
+            </div>
+            <span className="text-2xl sm:text-3xl font-black text-[#0a192f]">{deck.cards.length}</span>
+          </div>
+
+          <div className="liquid-glass liquid-glass-hover p-5 rounded-2xl space-y-1 shadow-sm">
+            <div className="flex items-center justify-between text-slate-600">
+              <span className="text-xs font-bold">Mastered</span>
+              <CheckCircle className="w-4 h-4 text-emerald-700" />
+            </div>
+            <span className="text-2xl sm:text-3xl font-black text-emerald-700">{masteredCount}</span>
+          </div>
+
+          <div className="liquid-glass liquid-glass-hover p-5 rounded-2xl space-y-1 shadow-sm">
+            <div className="flex items-center justify-between text-slate-600">
+              <span className="text-xs font-bold">Review Needed</span>
+              <Award className="w-4 h-4 text-[#0a192f]" />
+            </div>
+            <span className="text-2xl sm:text-3xl font-black text-[#0a192f]">
+              {deck.cards.length - masteredCount}
+            </span>
+          </div>
         </div>
-      </div>
 
-      {/* 主視圖 */}
-      <main className="flex-1 w-full pb-12">
-        {mode === 'flashcards' && (
-          <FlashcardView cards={deck.cards} onToggleMastered={handleToggleMastered} />
-        )}
+        {/* 模式主畫面 */}
+        <div className="pt-2">
+          {mode === 'flashcards' && (
+            <FlashcardView cards={deck.cards} onToggleMastered={handleToggleMastered} />
+          )}
 
-        {mode === 'hybrid-quiz' && (
-          <HybridQuiz
-            questions={hybridQuestions}
-            onRestart={handleRestartQuiz}
-            isLoading={isLoadingQuiz}
-          />
-        )}
+          {mode === 'hybrid-quiz' && (
+            <HybridQuiz
+              questions={hybridQuestions}
+              onRestart={handleRestartQuiz}
+              isLoading={isLoadingQuiz}
+            />
+          )}
 
-        {mode === 'cloze-passage' && (
-          <ClozePassage cards={deck.cards} aiSettings={aiSettings} />
-        )}
+          {mode === 'cloze-passage' && (
+            <ClozePassage cards={deck.cards} aiSettings={aiSettings} />
+          )}
 
-        {mode === 'deck-editor' && (
-          <DeckEditor deck={deck} onUpdateDeck={handleUpdateDeck} />
-        )}
+          {mode === 'deck-editor' && (
+            <DeckEditor deck={deck} onUpdateDeck={handleUpdateDeck} />
+          )}
+        </div>
       </main>
 
+      {/* Vocabulum 底部 Footer */}
+      <footer className="liquid-glass border-0 border-t border-white/40 py-6 text-center text-xs text-slate-500 mt-auto">
+        <p>© 2026 Vocabulum • Vocabulary Learning Studio</p>
+      </footer>
+
+      {/* 彈窗 */}
       <ShareModal
         isOpen={isShareOpen}
         onClose={() => setIsShareOpen(false)}

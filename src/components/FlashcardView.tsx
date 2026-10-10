@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Volume2, RotateCw, ArrowLeft, ArrowRight, Shuffle, CheckCircle, Flame } from 'lucide-react';
 import { Flashcard } from '../types';
 
 interface FlashcardViewProps {
@@ -19,8 +20,8 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({ cards, onToggleMas
 
   if (shuffledCards.length === 0) {
     return (
-      <div className="text-center py-20 border border-black p-8 max-w-md mx-auto my-10">
-        <p className="text-black font-medium">題庫中沒有卡片，請先至「題庫編輯」新增單字。</p>
+      <div className="text-center py-20 liquid-glass rounded-3xl p-8 max-w-md mx-auto my-10">
+        <p className="text-slate-600 font-medium">題庫中沒有卡片，請先至「單字管理」新增單字。</p>
       </div>
     );
   }
@@ -31,14 +32,14 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({ cards, onToggleMas
     setIsFlipped(false);
     setTimeout(() => {
       setCurrentIndex((prev) => (prev + 1) % shuffledCards.length);
-    }, 100);
+    }, 150);
   };
 
   const handlePrev = () => {
     setIsFlipped(false);
     setTimeout(() => {
       setCurrentIndex((prev) => (prev - 1 + shuffledCards.length) % shuffledCards.length);
-    }, 100);
+    }, 150);
   };
 
   const handleShuffle = () => {
@@ -58,92 +59,140 @@ export const FlashcardView: React.FC<FlashcardViewProps> = ({ cards, onToggleMas
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      {/* 狀態列 */}
-      <div className="flex items-center justify-between mb-4 text-sm font-mono border-b border-black pb-2">
-        <div>
-          {currentIndex + 1} / {shuffledCards.length}
+    <div className="max-w-3xl mx-auto px-4 py-4 space-y-6">
+      {/* 頂部進度與操作 */}
+      <div className="flex items-center justify-between text-sm text-slate-600 font-medium px-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs uppercase font-bold tracking-wider text-slate-400">Card</span>
+          <span className="text-lg font-black text-[#0a192f]">{currentIndex + 1}</span>
+          <span className="text-slate-400">/</span>
+          <span className="text-slate-600">{shuffledCards.length}</span>
         </div>
-        <div className="flex space-x-2">
+
+        <div className="flex items-center gap-2">
           <button
             onClick={handleShuffle}
-            className="px-2.5 py-1 border border-black hover:bg-black hover:text-white transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold liquid-glass liquid-glass-hover text-[#0a192f]"
           >
-            隨機
+            <Shuffle className="w-3.5 h-3.5" />
+            <span>隨機</span>
           </button>
           <button
             onClick={() => onToggleMastered(currentCard.id)}
-            className={`px-2.5 py-1 border border-black transition ${
-              currentCard.mastered ? 'bg-black text-white' : 'hover:bg-black hover:text-white'
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
+              currentCard.mastered
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'liquid-glass liquid-glass-hover text-[#0a192f]'
             }`}
           >
-            {currentCard.mastered ? '已掌握' : '標記掌握'}
+            <CheckCircle className="w-3.5 h-3.5" />
+            <span>{currentCard.mastered ? '已掌握' : '標記掌握'}</span>
           </button>
         </div>
       </div>
 
-      {/* 翻轉卡片 */}
+      {/* 3D 翻轉卡片 */}
       <div
-        className="w-full h-80 border-2 border-black p-8 flex flex-col justify-between items-center text-center cursor-pointer select-none bg-white hover:bg-neutral-50 transition"
+        className="w-full h-96 sm:h-[420px] cursor-pointer perspective-1000 select-none"
         onClick={() => setIsFlipped(!isFlipped)}
       >
-        <div className="w-full flex justify-between items-center text-xs font-mono text-neutral-500 uppercase">
-          <span>{isFlipped ? '背面 [定義與例句]' : '正面 [單字]'}</span>
-          <button
-            onClick={(e) => speakText(isFlipped ? currentCard.exampleSentence || currentCard.term : currentCard.term, e)}
-            className="px-2 py-0.5 border border-black text-black hover:bg-black hover:text-white transition"
-          >
-            發音
-          </button>
+        <div
+          className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d rounded-3xl ${
+            isFlipped ? 'rotate-y-180' : ''
+          }`}
+        >
+          {/* 正面 */}
+          <div className="absolute inset-0 w-full h-full backface-hidden liquid-glass rounded-3xl p-8 sm:p-12 flex flex-col justify-between items-center text-center shadow-xl border border-white/60">
+            <div className="w-full flex justify-between items-center text-slate-400">
+              <span className="text-xs uppercase tracking-wider font-semibold text-slate-500">Term</span>
+              <button
+                onClick={(e) => speakText(currentCard.term, e)}
+                className="p-2.5 rounded-2xl liquid-glass liquid-glass-hover text-[#0a192f]"
+                title="發音"
+              >
+                <Volume2 className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="my-auto">
+              <h2 className="text-4xl sm:text-5xl font-black text-[#0a192f] tracking-tight">
+                {currentCard.term}
+              </h2>
+              {currentCard.partOfSpeech && (
+                <span className="inline-block mt-3 px-3 py-1 bg-[#0a192f]/5 text-[#0a192f] rounded-full text-xs font-semibold">
+                  {currentCard.partOfSpeech}
+                </span>
+              )}
+            </div>
+
+            <div className="text-slate-400 text-xs flex items-center gap-1.5">
+              <RotateCw className="w-3.5 h-3.5" />
+              <span>點擊翻面查看定義與例句</span>
+            </div>
+          </div>
+
+          {/* 背面 */}
+          <div className="absolute inset-0 w-full h-full backface-hidden rotate-y-180 liquid-glass rounded-3xl p-8 sm:p-12 flex flex-col justify-between items-center text-center shadow-xl border border-white/60 bg-white/70">
+            <div className="w-full flex justify-between items-center text-slate-400">
+              <span className="text-xs uppercase tracking-wider font-semibold text-[#0a192f]">Definition</span>
+              <button
+                onClick={(e) => speakText(currentCard.exampleSentence || currentCard.term, e)}
+                className="p-2.5 rounded-2xl liquid-glass liquid-glass-hover text-[#0a192f]"
+                title="朗讀例句"
+              >
+                <Volume2 className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="my-auto max-w-lg">
+              <h3 className="text-2xl sm:text-3xl font-bold text-[#0a192f]">
+                {currentCard.definition}
+              </h3>
+              {currentCard.exampleSentence && (
+                <div className="mt-5 p-4 rounded-2xl bg-white/80 border border-black/5 text-left shadow-sm">
+                  <p className="text-sm sm:text-base text-slate-800 font-medium leading-relaxed">
+                    "{currentCard.exampleSentence}"
+                  </p>
+                  {currentCard.exampleTranslation && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      {currentCard.exampleTranslation}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="text-slate-400 text-xs flex items-center gap-1.5">
+              <RotateCw className="w-3.5 h-3.5" />
+              <span>點擊翻回正面</span>
+            </div>
+          </div>
         </div>
-
-        {!isFlipped ? (
-          <div className="my-auto">
-            <h2 className="text-4xl font-bold tracking-tight text-black">{currentCard.term}</h2>
-            {currentCard.partOfSpeech && (
-              <span className="inline-block mt-2 font-mono text-sm text-neutral-600">
-                [{currentCard.partOfSpeech}]
-              </span>
-            )}
-          </div>
-        ) : (
-          <div className="my-auto max-w-lg">
-            <h3 className="text-2xl font-bold text-black">{currentCard.definition}</h3>
-            {currentCard.exampleSentence && (
-              <div className="mt-4 pt-4 border-t border-dashed border-neutral-300 text-left">
-                <p className="text-sm font-medium text-black">"{currentCard.exampleSentence}"</p>
-                {currentCard.exampleTranslation && (
-                  <p className="mt-1 text-xs text-neutral-600">{currentCard.exampleTranslation}</p>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="text-xs text-neutral-400 font-mono">點擊卡片以翻面</div>
       </div>
 
       {/* 控制按鈕 */}
-      <div className="flex items-center justify-between mt-6">
+      <div className="flex items-center justify-center gap-4">
         <button
           onClick={handlePrev}
-          className="px-6 py-2 border border-black font-medium hover:bg-black hover:text-white transition"
+          className="p-3.5 rounded-2xl liquid-glass liquid-glass-hover text-[#0a192f] shadow-md"
+          title="上一張"
         >
-          上一張
+          <ArrowLeft className="w-5 h-5" />
         </button>
 
         <button
           onClick={() => setIsFlipped(!isFlipped)}
-          className="px-6 py-2 border border-black font-medium bg-neutral-100 hover:bg-black hover:text-white transition"
+          className="px-6 py-3 rounded-2xl bg-[#0a192f] hover:bg-[#132c5b] text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5"
         >
-          翻面
+          翻轉卡片
         </button>
 
         <button
           onClick={handleNext}
-          className="px-6 py-2 border border-black font-medium hover:bg-black hover:text-white transition"
+          className="p-3.5 rounded-2xl liquid-glass liquid-glass-hover text-[#0a192f] shadow-md"
+          title="下一張"
         >
-          下一張
+          <ArrowRight className="w-5 h-5" />
         </button>
       </div>
     </div>

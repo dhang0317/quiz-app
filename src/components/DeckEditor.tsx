@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Plus, Trash2, Check, Sparkles, BookOpen } from 'lucide-react';
 import { Deck, Flashcard } from '../types';
 
 interface DeckEditorProps {
@@ -18,15 +19,13 @@ export const DeckEditor: React.FC<DeckEditorProps> = ({ deck, onUpdateDeck }) =>
       title: deckTitle,
       cards,
     });
-    alert('題庫已保存');
+    alert('題庫設定已成功儲存！');
   };
 
-  // 簡化極致的單字輸入：一鍵快速貼上
   const handleQuickAdd = () => {
     if (!quickInputText.trim()) return;
     const lines = quickInputText.split('\n').filter((l) => l.trim().length > 0);
     const newCards: Flashcard[] = lines.map((line, idx) => {
-      // 支援多種常見分隔符：空格、破折號、等號、逗號、冒號
       const parts = line.split(/[-–—=:,，\t]+/).map((s) => s.trim());
       const term = parts[0] || '';
       const definition = parts[1] || parts[0];
@@ -43,7 +42,7 @@ export const DeckEditor: React.FC<DeckEditorProps> = ({ deck, onUpdateDeck }) =>
 
     setCards([...cards, ...newCards]);
     setQuickInputText('');
-    alert(`成功新增 ${newCards.length} 個單字！`);
+    alert(`已新增 ${newCards.length} 個單字！`);
   };
 
   const handleDeleteCard = (id: string) => {
@@ -51,100 +50,109 @@ export const DeckEditor: React.FC<DeckEditorProps> = ({ deck, onUpdateDeck }) =>
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between border-b border-black pb-3 mb-6">
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      {/* 標頭 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-black/5">
         <div>
-          <h2 className="text-xl font-bold">題庫管理</h2>
-          <p className="text-xs font-mono text-neutral-500 mt-1">簡化單字錄入：直接貼上即可解析，無需繁瑣欄位</p>
+          <h2 className="text-2xl font-black text-[#0a192f] tracking-tight">單字庫管理</h2>
+          <p className="text-xs text-slate-500 font-medium mt-1">支援極簡快速貼上，直接錄入單字與意思</p>
         </div>
         <button
           onClick={handleSave}
-          className="px-6 py-2 border-2 border-black font-bold bg-black text-white hover:bg-neutral-800 transition"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a192f] hover:bg-[#132c5b] text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5"
         >
-          保存題庫
+          <Check className="w-4 h-4" />
+          <span>保存所有變更</span>
         </button>
       </div>
 
       {/* 題庫名稱 */}
-      <div className="mb-6">
-        <label className="block text-xs font-mono mb-1">題庫名稱</label>
+      <div className="liquid-glass rounded-3xl p-6 space-y-2 shadow-md">
+        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500">學習集名稱</label>
         <input
           type="text"
           value={deckTitle}
           onChange={(e) => setDeckTitle(e.target.value)}
-          className="w-full px-3 py-2 border border-black font-mono text-sm focus:outline-none"
+          className="liquid-glass w-full px-4 py-2.5 rounded-xl text-base text-[#0a192f] font-bold focus:outline-none focus:ring-2 focus:ring-[#0a192f]/20"
         />
       </div>
 
-      {/* Tab 切換 */}
-      <div className="flex border-b border-black mb-6">
+      {/* Tab 選單 */}
+      <div className="flex gap-2">
         <button
           onClick={() => setActiveTab('quick')}
-          className={`px-4 py-2 text-sm font-mono border-t border-l border-r border-black transition ${
-            activeTab === 'quick' ? 'bg-black text-white' : 'bg-white text-black'
+          className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition ${
+            activeTab === 'quick'
+              ? 'bg-[#0a192f] text-white shadow-md'
+              : 'liquid-glass liquid-glass-hover text-[#0a192f]'
           }`}
         >
-          超簡易快速貼上新增
+          超簡易快速貼上
         </button>
         <button
           onClick={() => setActiveTab('list')}
-          className={`px-4 py-2 text-sm font-mono border-t border-l border-r border-black transition ${
-            activeTab === 'list' ? 'bg-black text-white' : 'bg-white text-black'
+          className={`px-5 py-2.5 rounded-2xl text-xs font-bold transition ${
+            activeTab === 'list'
+              ? 'bg-[#0a192f] text-white shadow-md'
+              : 'liquid-glass liquid-glass-hover text-[#0a192f]'
           }`}
         >
-          現有單字清單 ({cards.length})
+          單字清單 ({cards.length})
         </button>
       </div>
 
       {/* 快速貼上模式 */}
       {activeTab === 'quick' && (
-        <div className="border border-black p-6 bg-white space-y-4">
-          <div>
-            <label className="block text-xs font-mono font-bold mb-1">
-              直接貼上單字列表（一行一個，格式只需：「單字 中文」或「單字 - 中文」）：
-            </label>
-            <p className="text-xs text-neutral-500 mb-2">
-              例如：
-              <br />apple 蘋果
-              <br />banana - 香蕉
-              <br />implement 實施 The team will implement the plan.
+        <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl border border-white/60">
+          <div className="space-y-1">
+            <h3 className="text-sm font-bold text-[#0a192f]">直接貼上單字列表：</h3>
+            <p className="text-xs text-slate-500">
+              一行一個，格式只需：「單字 中文」或「單字 - 中文」：
+              <br />
+              <span className="font-mono text-slate-400">例：apple 蘋果 或 implement 實施 The team will implement the plan.</span>
             </p>
-            <textarea
-              rows={8}
-              value={quickInputText}
-              onChange={(e) => setQuickInputText(e.target.value)}
-              placeholder="在此直接貼上單字..."
-              className="w-full p-3 border border-black font-mono text-sm focus:outline-none"
-            />
           </div>
-          <button
-            onClick={handleQuickAdd}
-            disabled={!quickInputText.trim()}
-            className="w-full py-2.5 border border-black font-bold bg-black text-white hover:bg-neutral-800 transition disabled:opacity-30"
-          >
-            一鍵加入題庫
-          </button>
+
+          <textarea
+            rows={8}
+            value={quickInputText}
+            onChange={(e) => setQuickInputText(e.target.value)}
+            placeholder="在此貼入單字列表..."
+            className="liquid-glass w-full p-4 rounded-2xl text-sm font-mono text-[#0a192f] focus:outline-none focus:ring-2 focus:ring-[#0a192f]/20 leading-relaxed"
+          />
+
+          <div className="flex justify-end">
+            <button
+              onClick={handleQuickAdd}
+              disabled={!quickInputText.trim()}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a192f] hover:bg-[#132c5b] text-white font-bold text-xs shadow-md transition transform hover:-translate-y-0.5 disabled:opacity-40"
+            >
+              <Plus className="w-4 h-4" />
+              <span>一鍵解析並加入</span>
+            </button>
+          </div>
         </div>
       )}
 
-      {/* 單字清單列表 */}
+      {/* 單字清單 */}
       {activeTab === 'list' && (
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {cards.map((c, idx) => (
-            <div key={c.id} className="border border-black p-3 bg-white flex items-center justify-between">
-              <div className="font-mono text-sm">
-                <span className="font-bold text-neutral-400 mr-2">#{idx + 1}</span>
-                <span className="font-bold text-black mr-3">{c.term}</span>
-                <span className="text-neutral-600">{c.definition}</span>
+            <div key={c.id} className="liquid-glass liquid-glass-hover p-4 rounded-2xl shadow-sm flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-slate-400 mr-2">#{idx + 1}</span>
+                <span className="font-bold text-[#0a192f] text-base mr-2">{c.term}</span>
+                <span className="text-xs text-slate-600">{c.definition}</span>
                 {c.exampleSentence && (
-                  <span className="text-xs text-neutral-400 block mt-0.5 font-serif italic">"{c.exampleSentence}"</span>
+                  <p className="text-xs text-slate-400 mt-1 italic line-clamp-1">"{c.exampleSentence}"</p>
                 )}
               </div>
               <button
                 onClick={() => handleDeleteCard(c.id)}
-                className="px-2 py-1 text-xs border border-black hover:bg-black hover:text-white transition"
+                className="p-2 text-slate-400 hover:text-rose-600 transition"
+                title="刪除"
               >
-                刪除
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           ))}

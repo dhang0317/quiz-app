@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CheckCircle2, XCircle, RotateCcw, ArrowRight, Sparkles } from 'lucide-react';
 import { HybridQuizQuestion } from '../types';
 
 interface HybridQuizProps {
@@ -16,17 +17,23 @@ export const HybridQuiz: React.FC<HybridQuizProps> = ({ questions, onRestart, is
 
   if (isLoading) {
     return (
-      <div className="max-w-2xl mx-auto py-20 text-center font-mono">
-        <p className="border border-black p-6 inline-block">AI 正在以節省模式生成語境題目...</p>
+      <div className="max-w-2xl mx-auto py-20 text-center">
+        <div className="liquid-glass rounded-3xl p-8 max-w-md mx-auto space-y-3 shadow-lg">
+          <Sparkles className="w-8 h-8 mx-auto text-[#0a192f] animate-pulse" />
+          <p className="text-[#0a192f] font-bold">AI 正在以語境節省模式出題中...</p>
+        </div>
       </div>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="max-w-md mx-auto py-16 text-center border border-black p-8 my-10">
-        <p className="mb-4">尚無可測驗題目，請確認題庫是否有單字。</p>
-        <button onClick={onRestart} className="px-4 py-2 border border-black hover:bg-black hover:text-white">
+      <div className="max-w-md mx-auto py-16 text-center liquid-glass rounded-3xl p-8 my-10 shadow-lg">
+        <p className="text-slate-600 mb-4 font-medium">尚無可測驗題目，請確認題庫是否有單字。</p>
+        <button
+          onClick={onRestart}
+          className="px-5 py-2.5 rounded-2xl bg-[#0a192f] text-white font-bold text-sm shadow-md"
+        >
           重新載入
         </button>
       </div>
@@ -36,7 +43,6 @@ export const HybridQuiz: React.FC<HybridQuizProps> = ({ questions, onRestart, is
   const isFinished = currentIndex >= questions.length;
   const currentQ = questions[currentIndex];
 
-  // 提交驗證（無論是點選項或輸入文字）
   const handleCheckAnswer = (answerValue: string) => {
     if (isSubmitted) return;
     const isCorrect = answerValue.trim().toLowerCase() === currentQ.correctAnswer.trim().toLowerCase();
@@ -53,10 +59,13 @@ export const HybridQuiz: React.FC<HybridQuizProps> = ({ questions, onRestart, is
 
   if (isFinished) {
     return (
-      <div className="max-w-md mx-auto my-12 border-2 border-black p-8 text-center bg-white">
-        <h2 className="text-2xl font-bold mb-2">測驗完成</h2>
-        <p className="text-sm font-mono mb-6">答對題數：{score} / {questions.length}</p>
-        <div className="text-4xl font-mono font-bold mb-8">
+      <div className="max-w-md mx-auto my-12 liquid-glass rounded-3xl p-8 sm:p-10 text-center shadow-2xl border border-white/60">
+        <div className="w-16 h-16 mx-auto rounded-2xl bg-[#0a192f] text-white flex items-center justify-center shadow-md mb-4">
+          <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+        </div>
+        <h2 className="text-3xl font-black text-[#0a192f] tracking-tight">測驗完成</h2>
+        <p className="text-sm text-slate-600 font-medium mt-1">答對題數：{score} / {questions.length}</p>
+        <div className="my-6 py-4 rounded-2xl bg-white/70 border border-black/5 text-5xl font-black text-[#0a192f]">
           {Math.round((score / questions.length) * 100)}%
         </div>
         <button
@@ -66,9 +75,10 @@ export const HybridQuiz: React.FC<HybridQuizProps> = ({ questions, onRestart, is
             setIsSubmitted(false);
             onRestart();
           }}
-          className="w-full py-2.5 border-2 border-black font-semibold hover:bg-black hover:text-white transition"
+          className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-[#0a192f] hover:bg-[#132c5b] text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5"
         >
-          重新開始
+          <RotateCcw className="w-4 h-4" />
+          <span>重新產生測驗</span>
         </button>
       </div>
     );
@@ -78,37 +88,37 @@ export const HybridQuiz: React.FC<HybridQuizProps> = ({ questions, onRestart, is
   const isAnswerCorrect = currentAnswer.trim().toLowerCase() === currentQ.correctAnswer.trim().toLowerCase();
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      {/* 進度 */}
-      <div className="flex justify-between items-center text-sm font-mono border-b border-black pb-2 mb-6">
-        <span>選擇 / 填空合一測驗 (AI 語境)</span>
-        <span>{currentIndex + 1} / {questions.length}</span>
+    <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      {/* 進度條 */}
+      <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-wider px-2">
+        <span>Hybrid Quiz (AI Context)</span>
+        <span className="text-[#0a192f] font-black text-sm">{currentIndex + 1} / {questions.length}</span>
       </div>
 
-      <div className="border-2 border-black p-6 bg-white space-y-6">
+      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl border border-white/60">
         {/* 中文意釋 */}
-        <div className="text-xs font-mono uppercase text-neutral-500 border-b border-neutral-200 pb-1">
-          題意：{currentQ.definition}
+        <div className="text-xs font-semibold text-slate-500 pb-2 border-b border-black/5">
+          語意定義：<span className="text-[#0a192f] font-bold text-sm">{currentQ.definition}</span>
         </div>
 
-        {/* 語境句子填空展示 (不要提示，直接留空) */}
-        <div className="text-xl leading-relaxed font-serif">
+        {/* 語境句子挖空 */}
+        <div className="text-xl sm:text-2xl leading-relaxed text-slate-800 font-medium">
           <span>{currentQ.sentenceBefore} </span>
-          <span className="font-sans font-bold border-b-2 border-black px-2 inline-block min-w-24 text-center">
+          <span className="font-bold border-b-2 border-[#0a192f] px-3 py-0.5 rounded-md bg-white/60 text-[#0a192f] inline-block min-w-28 text-center shadow-inner">
             {isSubmitted ? currentQ.correctAnswer : currentAnswer || '________'}
           </span>
           <span> {currentQ.sentenceAfter}</span>
         </div>
 
-        {/* 填答方式一：鍵盤輸入填空 */}
-        <div>
-          <label className="block text-xs font-mono text-neutral-600 mb-1">方式一：直接鍵盤輸入 (不分大小寫)</label>
+        {/* 方式一：鍵盤輸入 */}
+        <div className="space-y-1.5 pt-2">
+          <label className="block text-xs font-semibold text-slate-500">方式一：直接鍵盤輸入</label>
           <form
             onSubmit={(e) => {
               e.preventDefault();
               if (typedInput.trim()) handleCheckAnswer(typedInput);
             }}
-            className="flex space-x-2"
+            className="flex gap-2"
           >
             <input
               type="text"
@@ -119,14 +129,14 @@ export const HybridQuiz: React.FC<HybridQuizProps> = ({ questions, onRestart, is
                 setTypedInput(e.target.value);
                 setSelectedOption(null);
               }}
-              placeholder="輸入單字後按 Enter..."
-              className="flex-1 px-3 py-2 border border-black focus:outline-none focus:ring-1 focus:ring-black font-mono text-sm"
+              placeholder="在此輸入單字 (大小寫不限)..."
+              className="liquid-glass flex-1 px-4 py-2.5 rounded-xl text-sm text-[#0a192f] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0a192f]/20 font-medium"
             />
             {!isSubmitted && (
               <button
                 type="submit"
                 disabled={!typedInput.trim()}
-                className="px-4 py-2 border border-black font-medium hover:bg-black hover:text-white disabled:opacity-30"
+                className="px-5 py-2.5 rounded-xl bg-[#0a192f] hover:bg-[#132c5b] text-white font-bold text-xs shadow-md transition disabled:opacity-40"
               >
                 確認
               </button>
@@ -134,21 +144,22 @@ export const HybridQuiz: React.FC<HybridQuizProps> = ({ questions, onRestart, is
           </form>
         </div>
 
-        {/* 填答方式二：點選選擇題選項 */}
-        <div>
-          <label className="block text-xs font-mono text-neutral-600 mb-2">方式二：或直接點選選項</label>
-          <div className="grid grid-cols-2 gap-2">
+        {/* 方式二：點選選項 */}
+        <div className="space-y-2 pt-2 border-t border-black/5">
+          <label className="block text-xs font-semibold text-slate-500">方式二：或點選下方選項</label>
+          <div className="grid grid-cols-2 gap-2.5">
             {currentQ.options.map((opt, i) => {
               const isSelected = selectedOption === opt;
-              let btnStyle = 'border border-black hover:bg-neutral-100';
+              let btnCls = 'liquid-glass liquid-glass-hover text-[#0a192f] font-semibold';
+
               if (isSubmitted) {
                 if (opt.toLowerCase() === currentQ.correctAnswer.toLowerCase()) {
-                  btnStyle = 'border-2 border-black bg-black text-white font-bold';
+                  btnCls = 'bg-emerald-600 text-white font-bold shadow-md';
                 } else if (isSelected) {
-                  btnStyle = 'border border-black bg-neutral-200 line-through';
+                  btnCls = 'bg-rose-500/20 text-rose-800 line-through';
                 }
               } else if (isSelected) {
-                btnStyle = 'border-2 border-black bg-neutral-200 font-semibold';
+                btnCls = 'bg-[#0a192f] text-white font-bold shadow-md';
               }
 
               return (
@@ -160,9 +171,15 @@ export const HybridQuiz: React.FC<HybridQuizProps> = ({ questions, onRestart, is
                     setTypedInput(opt);
                     handleCheckAnswer(opt);
                   }}
-                  className={`py-2 px-3 text-sm font-mono text-left transition ${btnStyle}`}
+                  className={`py-3 px-4 rounded-xl text-sm text-left transition flex items-center justify-between ${btnCls}`}
                 >
-                  {String.fromCharCode(65 + i)}. {opt}
+                  <span>{opt}</span>
+                  {isSubmitted && opt.toLowerCase() === currentQ.correctAnswer.toLowerCase() && (
+                    <CheckCircle2 className="w-4 h-4 text-white" />
+                  )}
+                  {isSubmitted && isSelected && opt.toLowerCase() !== currentQ.correctAnswer.toLowerCase() && (
+                    <XCircle className="w-4 h-4 text-rose-700" />
+                  )}
                 </button>
               );
             })}
@@ -171,19 +188,32 @@ export const HybridQuiz: React.FC<HybridQuizProps> = ({ questions, onRestart, is
 
         {/* 批改反饋 */}
         {isSubmitted && (
-          <div className="border-t border-black pt-4 mt-4">
-            <div className="font-mono text-sm font-bold mb-2">
-              {isAnswerCorrect ? '[ 正確 ]' : `[ 錯誤 ] 正確答案為：${currentQ.correctAnswer}`}
+          <div className="pt-4 border-t border-black/10 space-y-3">
+            <div className={`text-sm font-bold flex items-center gap-1.5 ${isAnswerCorrect ? 'text-emerald-700' : 'text-rose-700'}`}>
+              {isAnswerCorrect ? (
+                <>
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>回答正確！</span>
+                </>
+              ) : (
+                <>
+                  <XCircle className="w-4 h-4" />
+                  <span>回答錯誤，正確答案為：{currentQ.correctAnswer}</span>
+                </>
+              )}
             </div>
-            <div className="text-xs text-neutral-600 mb-4">
-              全句：{currentQ.contextSentence}
+            <div className="text-xs text-slate-600 bg-white/60 p-3 rounded-xl border border-black/5">
+              語境全句："{currentQ.contextSentence}"
             </div>
-            <button
-              onClick={handleNext}
-              className="w-full py-2 border border-black font-bold bg-black text-white hover:bg-neutral-800 transition"
-            >
-              下一題
-            </button>
+            <div className="flex justify-end pt-2">
+              <button
+                onClick={handleNext}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#0a192f] hover:bg-[#132c5b] text-white font-bold text-xs shadow-md transition transform hover:-translate-y-0.5"
+              >
+                <span>下一題</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         )}
       </div>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BookOpen, Sparkles, CheckCircle2, RotateCcw } from 'lucide-react';
 import { ClozePassageQuestion, Flashcard } from '../types';
 import { chunkCards, generatePassagesWithAI, AISettings } from '../services/aiService';
 import { generateLocalClozePassage } from '../services/generator';
@@ -9,7 +10,6 @@ interface ClozePassageProps {
 }
 
 export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings }) => {
-  // 將單字切成多個群組（每組 4-5 個單字），單字過多時分成多篇文章
   const cardChunks = chunkCards(cards, 5);
   const [currentGroupIdx, setCurrentGroupIdx] = useState(0);
 
@@ -22,7 +22,6 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
   const [isLoadingAI, setIsLoadingAI] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // 切換文章篇章
   const handleSwitchGroup = (idx: number) => {
     setCurrentGroupIdx(idx);
     setIsSubmitted(false);
@@ -32,7 +31,6 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
     setPassage(newPassage);
   };
 
-  // 使用 AI 節省模式生成此組文章
   const handleGenerateAI = async () => {
     if (!aiSettings.apiKey.trim()) {
       setErrorMsg('請先點選右上角「設定」填入 Gemini API Key');
@@ -72,8 +70,8 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
 
   if (!passage || passage.blanks.length === 0) {
     return (
-      <div className="max-w-md mx-auto py-16 text-center border border-black p-8 my-10 font-mono">
-        <p>題庫單字不足，無法生成文章測驗。</p>
+      <div className="max-w-md mx-auto py-16 text-center liquid-glass rounded-3xl p-8 my-10 shadow-lg">
+        <p className="text-slate-600 font-medium">題庫單字不足，無法生成文章測驗。</p>
       </div>
     );
   }
@@ -83,38 +81,40 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
   ).length;
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      {/* 頂部切換多篇文章 (若單字過多時切分) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-black pb-3 mb-6 gap-2">
+    <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+      {/* 標題與篇章切換 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-black/5">
         <div>
-          <h2 className="text-xl font-bold">{passage.title}</h2>
-          <div className="text-xs font-mono text-neutral-500 mt-1">
-            單字量共 {cards.length} 個，已切分為 {cardChunks.length} 個篇章
+          <h2 className="text-2xl font-black text-[#0a192f] tracking-tight flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-[#0a192f]" />
+            <span>{passage.title}</span>
+          </h2>
+          <div className="text-xs text-slate-500 font-medium mt-1">
+            單字庫共有 {cards.length} 個字，已自動拆分為 {cardChunks.length} 個連貫短文篇章
           </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={handleGenerateAI}
-            disabled={isLoadingAI}
-            className="px-3 py-1.5 border border-black text-xs font-mono hover:bg-black hover:text-white transition disabled:opacity-40"
-          >
-            {isLoadingAI ? 'AI 節省生成中...' : 'AI 生成此篇'}
-          </button>
-        </div>
+        <button
+          onClick={handleGenerateAI}
+          disabled={isLoadingAI}
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-[#0a192f] hover:bg-[#132c5b] text-white font-bold text-xs shadow-md transition transform hover:-translate-y-0.5 disabled:opacity-50"
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>{isLoadingAI ? 'AI 節省生成中...' : 'AI 生成此篇'}</span>
+        </button>
       </div>
 
-      {/* 篇章選擇分頁標籤 */}
+      {/* 篇章 Tab 切換 */}
       {cardChunks.length > 1 && (
-        <div className="flex flex-wrap gap-1 mb-6">
+        <div className="flex flex-wrap gap-2">
           {cardChunks.map((_, i) => (
             <button
               key={i}
               onClick={() => handleSwitchGroup(i)}
-              className={`px-3 py-1 text-xs font-mono border transition ${
+              className={`px-4 py-1.5 rounded-xl text-xs font-bold transition ${
                 currentGroupIdx === i
-                  ? 'bg-black text-white border-black font-bold'
-                  : 'bg-white text-black border-neutral-300 hover:border-black'
+                  ? 'bg-[#0a192f] text-white shadow-sm'
+                  : 'liquid-glass liquid-glass-hover text-[#0a192f]'
               }`}
             >
               文章 {i + 1}
@@ -124,14 +124,14 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
       )}
 
       {errorMsg && (
-        <div className="border border-black p-3 mb-6 text-xs font-mono bg-neutral-100">
+        <div className="p-3.5 rounded-2xl bg-rose-50 text-rose-800 text-xs border border-rose-200">
           {errorMsg}
         </div>
       )}
 
-      {/* 文章正文 (純文字挖空，無彩色提示) */}
-      <div className="border-2 border-black p-6 sm:p-8 bg-white mb-6">
-        <div className="text-base sm:text-lg leading-loose font-serif">
+      {/* 文章正文 (液態毛玻璃卡片) */}
+      <div className="liquid-glass rounded-3xl p-6 sm:p-10 shadow-xl border border-white/60">
+        <div className="text-base sm:text-lg leading-loose text-slate-800 font-serif">
           {passage.passageSegments.map((segment, idx) => {
             if (segment.blankIndex) {
               const bIdx = segment.blankIndex;
@@ -139,18 +139,18 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
               const blankObj = passage.blanks.find((b) => b.blankIndex === bIdx);
               const isCorrect = choice?.toLowerCase() === blankObj?.correctAnswer.toLowerCase();
 
-              let borderStyle = 'border-b-2 border-black font-sans px-2 font-bold';
+              let badgeCls = 'border-b-2 border-[#0a192f] bg-white/60 text-[#0a192f] font-sans font-bold';
               if (isSubmitted) {
-                borderStyle = isCorrect
-                  ? 'border-2 border-black bg-black text-white px-2 font-sans'
-                  : 'border-2 border-black line-through bg-neutral-200 px-2 font-sans';
+                badgeCls = isCorrect
+                  ? 'bg-emerald-600 text-white font-sans font-bold shadow-sm'
+                  : 'bg-rose-500/20 text-rose-800 line-through font-sans font-bold';
               }
 
               return (
-                <span key={idx} className={`inline-block mx-1 ${borderStyle}`}>
+                <span key={idx} className={`inline-block mx-1 px-2.5 py-0.5 rounded-lg ${badgeCls}`}>
                   ({bIdx}) {choice || '________'}
                   {isSubmitted && !isCorrect && (
-                    <span className="ml-1 no-underline font-normal text-xs text-neutral-600">
+                    <span className="ml-1.5 text-xs text-emerald-700 no-underline font-semibold">
                       [{blankObj?.correctAnswer}]
                     </span>
                   )}
@@ -162,30 +162,31 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
         </div>
 
         {passage.fullTranslation && isSubmitted && (
-          <div className="mt-6 pt-4 border-t border-neutral-300 text-xs text-neutral-600 font-sans">
-            <span className="font-bold">中文對照：</span>
-            <p className="mt-1">{passage.fullTranslation}</p>
+          <div className="mt-6 pt-5 border-t border-black/5 text-xs text-slate-600 font-sans leading-relaxed">
+            <span className="font-bold text-[#0a192f] block mb-1">篇章中文對照：</span>
+            <p>{passage.fullTranslation}</p>
           </div>
         )}
       </div>
 
-      {/* 挖空選題區 (無贅言提示) */}
-      <div className="border-2 border-black p-6 bg-white mb-6 space-y-4">
-        <div className="text-sm font-bold font-mono">作答區 (點選對應選項)：</div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* 選項作答區 */}
+      <div className="liquid-glass rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl border border-white/60">
+        <h3 className="text-sm font-bold text-[#0a192f]">作答區 (點選對應選項)：</h3>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {passage.blanks.map((b) => (
-            <div key={b.blankIndex} className="border border-neutral-300 p-3">
-              <div className="text-xs font-mono font-bold mb-2">空格 ({b.blankIndex})</div>
+            <div key={b.blankIndex} className="p-3.5 rounded-2xl bg-white/60 border border-black/5">
+              <div className="text-xs font-bold text-[#0a192f] mb-2">空格 ({b.blankIndex})</div>
               <div className="grid grid-cols-2 gap-1.5">
                 {b.options.map((opt, oIdx) => {
                   const isSelected = userAnswers[b.blankIndex] === opt;
-                  let btnCls = 'border border-black hover:bg-neutral-100 text-xs font-mono';
-                  if (isSelected) btnCls = 'border-2 border-black bg-black text-white font-bold text-xs font-mono';
+                  let btnCls = 'liquid-glass liquid-glass-hover text-[#0a192f] font-medium';
+                  if (isSelected) btnCls = 'bg-[#0a192f] text-white font-bold shadow-sm';
                   if (isSubmitted) {
-                    if (opt === b.correctAnswer) {
-                      btnCls = 'border-2 border-black bg-black text-white font-bold text-xs font-mono';
-                    } else if (isSelected && opt !== b.correctAnswer) {
-                      btnCls = 'border border-black bg-neutral-200 line-through text-xs font-mono';
+                    if (opt.toLowerCase() === b.correctAnswer.toLowerCase()) {
+                      btnCls = 'bg-emerald-600 text-white font-bold shadow-sm';
+                    } else if (isSelected && opt.toLowerCase() !== b.correctAnswer.toLowerCase()) {
+                      btnCls = 'bg-rose-500/20 text-rose-800 line-through';
                     }
                   }
 
@@ -194,7 +195,7 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
                       key={oIdx}
                       disabled={isSubmitted}
                       onClick={() => handleSelectOption(b.blankIndex, opt)}
-                      className={`py-1.5 px-2 transition ${btnCls}`}
+                      className={`py-2 px-3 rounded-xl text-xs transition ${btnCls}`}
                     >
                       {opt}
                     </button>
@@ -206,11 +207,11 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
         </div>
       </div>
 
-      {/* 批改與結果 */}
-      <div className="flex items-center justify-between border-t border-black pt-4">
-        <div className="font-mono text-sm">
+      {/* 底部按鈕 */}
+      <div className="flex items-center justify-between pt-2">
+        <div className="text-sm font-semibold text-slate-600">
           {isSubmitted
-            ? `批改結果：答對 ${correctCount} / ${passage.blanks.length} 題`
+            ? `批改結果：答對 ${correctCount} / ${passage.blanks.length} 題 (${Math.round((correctCount / passage.blanks.length) * 100)}分)`
             : `已填答 ${Object.keys(userAnswers).length} / ${passage.blanks.length} 空`}
         </div>
 
@@ -218,9 +219,10 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
           <button
             onClick={handleSubmit}
             disabled={Object.keys(userAnswers).length < passage.blanks.length}
-            className="px-6 py-2 border-2 border-black font-bold bg-black text-white hover:bg-neutral-800 transition disabled:opacity-30"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#0a192f] hover:bg-[#132c5b] text-white font-bold text-sm shadow-md transition transform hover:-translate-y-0.5 disabled:opacity-40"
           >
-            提交批改
+            <CheckCircle2 className="w-4 h-4" />
+            <span>提交整篇批改</span>
           </button>
         ) : (
           <button
@@ -228,9 +230,10 @@ export const ClozePassage: React.FC<ClozePassageProps> = ({ cards, aiSettings })
               setIsSubmitted(false);
               setUserAnswers({});
             }}
-            className="px-6 py-2 border border-black font-medium hover:bg-black hover:text-white transition"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl liquid-glass liquid-glass-hover text-[#0a192f] font-bold text-sm shadow-md transition"
           >
-            重做此篇
+            <RotateCcw className="w-4 h-4" />
+            <span>重做此篇</span>
           </button>
         )}
       </div>
